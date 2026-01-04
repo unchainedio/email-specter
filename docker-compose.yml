@@ -12,7 +12,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   backend:
     build:
       context: .
@@ -33,7 +32,6 @@ services:
       - TOP_ENTITIES_CACHE_DURATION=${TOP_ENTITIES_CACHE_DURATION:-5m}
     networks:
       - email-specter-network
-
   frontend:
     build:
       context: .
@@ -44,11 +42,13 @@ services:
       - backend
     networks:
       - email-specter-network
-
   caddy:
     image: caddy:alpine
     container_name: email-specter-caddy
     restart: unless-stopped
+    # FIX 1: Use 'expose' instead of 'ports' to avoid Host Port Conflict
+    expose:
+      - "80"
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -56,14 +56,17 @@ services:
     depends_on:
       - frontend
       - backend
+    # FIX 2: Connect to Coolify Proxy Network
     networks:
       - email-specter-network
-
+      - coolify
 volumes:
   mongodb_data:
   caddy_data:
   caddy_config:
-
 networks:
   email-specter-network:
     driver: bridge
+  # FIX 3: Define External Network
+  coolify:
+    external: true
