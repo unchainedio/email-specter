@@ -43,20 +43,19 @@ services:
     networks:
       - email-specter-network
   caddy:
-    image: caddy:alpine
+    build:
+      context: .
+      dockerfile: docker/caddy.Dockerfile
     container_name: email-specter-caddy
     restart: unless-stopped
-    # FIX 1: Use 'expose' instead of 'ports' to avoid Host Port Conflict
     expose:
       - "80"
     volumes:
-      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       - frontend
       - backend
-    # FIX 2: Connect to Coolify Proxy Network
     networks:
       - email-specter-network
       - coolify
