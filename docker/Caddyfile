@@ -1,11 +1,17 @@
 # HTTP - always available on port 80, any hostname
 :80 {
-    handle_path /api/* {
+    # 1. API: Send to Backend (Keep /api prefix)
+    handle /api/* {
         reverse_proxy backend:8989
     }
+    # 2. Webhooks: Send to Backend (Keep /webhook prefix)
+    handle /webhook* {
+        reverse_proxy backend:8989
+    }
+    # 3. Frontend: Everything else
     handle {
         reverse_proxy frontend:3000 {
-            # FIX 4: Prevent Redirect Loop via Cloudflare/Traefik
+            # CRITICAL FIX: Tells Next.js we are behind HTTPS
             header_up X-Forwarded-Proto https
         }
     }
