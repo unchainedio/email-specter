@@ -49,9 +49,6 @@ services:
     image: caddy:alpine
     container_name: email-specter-caddy
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
